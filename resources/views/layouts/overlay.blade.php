@@ -1,0 +1,1 @@
+<div id="ec-overlay"><span class="loader_img"></span></div>
