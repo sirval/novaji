@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -21,7 +22,7 @@ class ProductController extends Controller
             'name' => $request->name,
             'price' => $request->price,
             'description' => $request->description,
-            'image' => $this->upload_file($request, $request->image, $request->name),
+            'image' => $this->upload_file($request),
         ]);
 
       if ($product) {
@@ -30,16 +31,18 @@ class ProductController extends Controller
       return view('create_product');
     }
 
-    protected function upload_file($request, $file, $fileName){
-        if(!$request->$file) return null;
-        $fileName .= '_'.$file.'_'.time().'.'.$request->file($file)->extension();  
-
-        $request->file($file)->move(public_path('uploads'), $fileName);
-
-        return $fileName;
-
+    protected function upload_file($request){
+        $image = $request->file('image');
+        if ($image) {
+            $fileName = uniqid().'.'.$image->getClientOriginalExtension();
+            
+            Storage::disk('public')->put($fileName, file_get_contents($image));
+            return $fileName;
+        }
+        return null;
     }
-    
+
+
     public function update(Request $request, $id)
     {
         $product = Product::where('id', $id)->update([

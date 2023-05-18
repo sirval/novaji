@@ -18,4 +18,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('products', [\App\Http\Controllers\ProductControllerApi::class]);
+Route::group(['prefix' => 'v1'], function () {
+    Route::prefix('auth')->group(function(){
+        Route::post('/login', [\App\Http\Controllers\Api\Auth\AuthController::class, 'login']); 
+    });
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('products', App\Http\Controllers\Api\ProductController::class);
+    });
+});
